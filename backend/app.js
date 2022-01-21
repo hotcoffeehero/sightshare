@@ -1,13 +1,25 @@
 const express = require('express')
 const bodyParser = require('body-parser')
-
+const HttpError = require('../backend/models/http-error')
 //Routes
 const placesRoutes = require('../backend/routes/places-routes')
 
 const app = express()
 
+
+//MIDDLEWARE
+
+app.use(bodyParser.json())
+
 app.use('/api/places', placesRoutes)
 
+//Error handler for undefined routes
+app.use((req, res, next) => {
+    const error = new HttpError("Could not find this route, bro...", 404)
+    throw error
+})
+
+//Error handler for defined routes
 app.use((error, req, res, next) => {
     if (res.headerSent) {
         return next(error)
