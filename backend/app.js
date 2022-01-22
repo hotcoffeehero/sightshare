@@ -3,6 +3,7 @@ const bodyParser = require('body-parser')
 const HttpError = require('../backend/models/http-error')
 //Routes
 const placesRoutes = require('../backend/routes/places-routes')
+const usersRoutes = require('../backend/routes/users-routes')
 
 const app = express()
 
@@ -12,6 +13,7 @@ const app = express()
 app.use(bodyParser.json())
 
 app.use('/api/places', placesRoutes)
+app.use('/api/users', usersRoutes)
 
 //Error handler for undefined routes
 app.use((req, res, next) => {
