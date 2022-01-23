@@ -1,6 +1,7 @@
 const HttpError = require('../models/http-error')
 const { v4: uuid } = require('uuid')
 const { validationResult, check } = require('express-validator')
+const getCoordsForAddress = require('../../backend/util/location')
 
 let DUMMY_PLACES = [
     {
@@ -40,25 +41,35 @@ const getPlacesByUserId = (req, res, next) => {
     res.json({places})    
 }
 
-const createPlace = (req, res, next) => {
-    //Error handling for API input
-    const errors = validationResult(req)
-    if(!errors.isEmpty()){
-        throw new HttpError('Your input is invalid, check your data', 422)
+const createPlace = async (req, res, next) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      next(new HttpError('Invalid inputs passed, please check your data.', 422));
     }
-    //
-    const { title, description, coordinates, address, creator } = req.body
+  
+    const { title, description, address, creator } = req.body;
+  
+    let coordinates;
+    try {
+      coordinates = await getCoordsForAddress(address);
+    } catch (error) {
+      return next(error);
+    }
+  
+    // const title = req.body.title;
     const createdPlace = {
-        id: uuid(),
-        title, 
-        description, 
-        location: coordinates, 
-        address,
-        creator
-    }
-    DUMMY_PLACES.unshift(createdPlace)
-    res.status(201).json({place: createdPlace})
-}
+      id: uuid(),
+      title,
+      description,
+      location: coordinates,
+      address,
+      creator
+    };
+  
+    DUMMY_PLACES.push(createdPlace); //unshift(createdPlace)
+  
+    res.status(201).json({ place: createdPlace });
+  };
 
 const updatePlace = (req, res, next) => {
     //Error handling for API input
