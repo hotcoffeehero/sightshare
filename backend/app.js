@@ -1,9 +1,12 @@
 const express = require('express')
 const bodyParser = require('body-parser')
-const HttpError = require('../backend/models/http-error')
+const HttpError = require('./models/http-error')
+const mongoose = require('mongoose')
 //Routes
-const placesRoutes = require('../backend/routes/places-routes')
-const usersRoutes = require('../backend/routes/users-routes')
+const placesRoutes = require('./routes/places-routes')
+const usersRoutes = require('./routes/users-routes')
+
+const mongoURI = 'mongodb+srv://hotcoffeehero:mongo1234@proshop.qiu4a.mongodb.net/sightshare?retryWrites=true&w=majority'
 
 const app = express()
 
@@ -30,4 +33,11 @@ app.use((error, req, res, next) => {
     res.json({message: error.message || "An unknown error occured..."})
 })
 
-app.listen(5000, console.log("Running on 5000"))
+mongoose
+.connect(mongoURI)
+.then(()=>{
+    app.listen(5000, console.log("Running on 5000"))
+})
+.catch(err => {
+    console.log(err);
+})
